@@ -16,7 +16,16 @@ The following variables are used to tweak some of the configuration pieces for u
      (load custom-file)
 #+end_src
 * RLF stuff
+** Opam setup
+#+begin_src emacs-lisp
+(require 'compat-28)
+(setq opam-share (string-chop-newline (shell-command-to-string "opam var share")))
+(setq opam-emacs (concat opam-share "/emacs/site-lisp"))
+(add-to-list 'load-path opam-emacs)
+;; (require 'tuareg)
+#+end_src
 
+** Bindings
 #+begin_src emacs-lisp
 ;; Test
 (setq home-dir (getenv "HOME"))
@@ -313,7 +322,7 @@ This section configures basic UI settings that remove unneeded elements to make 
   (setq inhibit-startup-message t)
 
   ;;(scroll-bar-mode -1)        ; Disable visible scrollbar
-  (tool-bar-mode -1)          ; Disable the toolbar
+  ;;(tool-bar-mode -1)          ; Disable the toolbar
   (tooltip-mode -1)           ; Disable tooltips
   (set-fringe-mode 10)        ; Give some breathing room
 
@@ -359,15 +368,13 @@ I am using the [[https://github.com/tonsky/FiraCode][Fira Code]] and [[https://f
 
 * Keybinding Configuration
 
-This configuration uses [[https://evil.readthedocs.io/en/latest/index.html][evil-mode]] for a Vi-like modal editing experience.  [[https://github.com/noctuid/general.el][general.el]] is used for easy keybinding configuration that integrates well with which-key.  [[https://github.com/emacs-evil/evil-collection][evil-collection]] is used to automatically configure various Emacs modes with Vi-like keybindings for evil-mode.
+[[https://evil.readthedocs.io/en/latest/ [[https://github.com/noctuid/general.el][general.el]] is used for easy keybinding configuration that integrates well with which-key.
 
 #+begin_src emacs-lisp
 
   ;; Make ESC quit prompts
-;;  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-;;
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
   (use-package general
-;;    :after evil
     :config
     (general-create-definer efs/leader-keys
       :keymaps '(normal insert visual emacs)
@@ -378,29 +385,6 @@ This configuration uses [[https://evil.readthedocs.io/en/latest/index.html][evil
       "t"  '(:ignore t :which-key "toggles")
       "tt" '(counsel-load-theme :which-key "choose theme")
       "fde" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/Emacs.org")))))
-;;
-;;  (use-package evil
-;;    :init
-;;    (setq evil-want-integration t)
-;;    (setq evil-want-keybinding nil)
-;;    (setq evil-want-C-u-scroll t)
-;;    (setq evil-want-C-i-jump nil)
-;;    :config
-;;    (evil-mode 1)
-;;    (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-;;    (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-;;
-;;    ;; Use visual line motions even outside of visual-line-mode buffers
-;;    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-;;    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-;;
-;;    (evil-set-initial-state 'messages-buffer-mode 'normal)
-;;    (evil-set-initial-state 'dashboard-mode 'normal))
-;;
-;;  (use-package evil-collection
-;;    :after evil
-;;    :config
-;;    (evil-collection-init))
 
 #+end_src
 
@@ -411,7 +395,7 @@ This configuration uses [[https://evil.readthedocs.io/en/latest/index.html][evil
 [[https://github.com/lewang/command-log-mode][command-log-mode]] is useful for displaying a panel showing each key binding you use in a panel on the right side of the frame.  Great for live streams and screencasts!
 
 #+begin_src emacs-lisp
-
+  
   (use-package command-log-mode
     :commands command-log-mode)
 
@@ -824,11 +808,6 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 ** Languages
 
-*** Elisp
-#+begin_src emacs-lisp
-;;(use-package tuareg
-;;)
-#+end_src
 *** IDE Features with lsp-mode
 
 **** lsp-mode
@@ -998,12 +977,22 @@ You can use the pyvenv package to use =virtualenv= environments in Emacs.  The =
 *** Ocaml Mode
 
 #+begin_src emacs-lisp
-;;(use-package tuareg
-;;  :mode "\\.mli?\\"
-;;  :hook (tuareg-mode . lsp-deferred)
-;;  )
+(use-package tuareg
+  :ensure nil
+  :mode ("\\.mli?\\'" . tuareg-mode)
+  :hook (tuareg-mode . lsp-deferred)
+  :config
+  (require 'ocamldebug)
+  )
+(require 'tuareg)
 #+end_src
 
+*** IMenu Mode
+#+begin_src emacs-lisp
+(defun try-to-add-imenu ()
+  (condition-case nil (imenu-add-to-menubar "Imenu") (error nil)))
+ (add-hook 'font-lock-mode-hook 'try-to-add-imenu)
+#+end_src
 ** Company Mode
 
 [[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
@@ -1323,7 +1312,7 @@ Dired is a built-in file manager for Emacs that does some pretty amazing things!
 
 ;;(prompt-for-insert "bk5.2")
   (use-package dired-hide-dotfiles
-    :hook (dired-mode . dired-hide-dotfiles-mode)
+   ;;  :hook (dired-mode . dired-hide-dotfiles-mode)
     :config
     (general-def dired-mode-map
           "H" 'dired-hide-dotfiles-mode))

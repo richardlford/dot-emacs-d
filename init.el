@@ -2,6 +2,12 @@
      (setq custom-file "~/.emacs.d/emacs-custom.el")
      (load custom-file)
 
+(require 'compat-28)
+(setq opam-share (string-chop-newline (shell-command-to-string "opam var share")))
+(setq opam-emacs (concat opam-share "/emacs/site-lisp"))
+(add-to-list 'load-path opam-emacs)
+;; (require 'tuareg)
+
 ;; Test
 (setq home-dir (getenv "HOME"))
 (setq rlfcustom-emacs-dir (concat home-dir "/rlfcustom/emacs"))
@@ -247,7 +253,7 @@
 (setq inhibit-startup-message t)
 
 ;;(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
+;;(tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
 (set-fringe-mode 10)        ; Give some breathing room
 
@@ -282,43 +288,18 @@
 (set-face-attribute 'variable-pitch nil :font "Cantarell" :height efs/default-variable-font-size :weight 'regular)
 
 ;; Make ESC quit prompts
-;;  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-;;
-  (use-package general
-;;    :after evil
-    :config
-    (general-create-definer efs/leader-keys
-      :keymaps '(normal insert visual emacs)
-      :prefix "SPC"
-      :global-prefix "C-SPC")
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(use-package general
+  :config
+  (general-create-definer efs/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
 
-    (efs/leader-keys
-      "t"  '(:ignore t :which-key "toggles")
-      "tt" '(counsel-load-theme :which-key "choose theme")
-      "fde" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/Emacs.org")))))
-;;
-;;  (use-package evil
-;;    :init
-;;    (setq evil-want-integration t)
-;;    (setq evil-want-keybinding nil)
-;;    (setq evil-want-C-u-scroll t)
-;;    (setq evil-want-C-i-jump nil)
-;;    :config
-;;    (evil-mode 1)
-;;    (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-;;    (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-;;
-;;    ;; Use visual line motions even outside of visual-line-mode buffers
-;;    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-;;    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-;;
-;;    (evil-set-initial-state 'messages-buffer-mode 'normal)
-;;    (evil-set-initial-state 'dashboard-mode 'normal))
-;;
-;;  (use-package evil-collection
-;;    :after evil
-;;    :config
-;;    (evil-collection-init))
+  (efs/leader-keys
+    "t"  '(:ignore t :which-key "toggles")
+    "tt" '(counsel-load-theme :which-key "choose theme")
+    "fde" '(lambda () (interactive) (find-file (expand-file-name "~/.emacs.d/Emacs.org")))))
 
 (use-package command-log-mode
   :commands command-log-mode)
@@ -603,9 +584,6 @@
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
-;;(use-package tuareg
-;;)
-
 ;;(prompt-for-insert "bk2")
 
   (defun efs/lsp-mode-setup ()
@@ -671,10 +649,18 @@
   :config
   (pyvenv-mode 1))
 
-;;(use-package tuareg
-;;  :mode "\\.mli?\\"
-;;  :hook (tuareg-mode . lsp-deferred)
-;;  )
+(use-package tuareg
+  :ensure nil
+  :mode ("\\.mli?\\'" . tuareg-mode)
+  :hook (tuareg-mode . lsp-deferred)
+  :config
+  (require 'ocamldebug)
+  )
+(require 'tuareg)
+
+(defun try-to-add-imenu ()
+  (condition-case nil (imenu-add-to-menubar "Imenu") (error nil)))
+ (add-hook 'font-lock-mode-hook 'try-to-add-imenu)
 
 (use-package company
   :after lsp-mode
@@ -806,7 +792,7 @@
 
 ;;(prompt-for-insert "bk5.2")
   (use-package dired-hide-dotfiles
-    :hook (dired-mode . dired-hide-dotfiles-mode)
+   ;;  :hook (dired-mode . dired-hide-dotfiles-mode)
     :config
     (general-def dired-mode-map
           "H" 'dired-hide-dotfiles-mode))
