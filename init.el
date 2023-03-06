@@ -586,46 +586,48 @@
 
 ;;(prompt-for-insert "bk2")
 
-  (defun efs/lsp-mode-setup ()
-    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-    (lsp-headerline-breadcrumb-mode))
+;;  (defun efs/lsp-mode-setup ()
+;;    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+;;    (lsp-headerline-breadcrumb-mode))
+;;
+;;  (use-package lsp-mode
+;;    :commands (lsp lsp-deferred)
+;;    :hook (lsp-mode . efs/lsp-mode-setup)
+;;    :init
+;;    (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+;;    :config
+;;    (lsp-enable-which-key-integration t))
 
-  (use-package lsp-mode
-    :commands (lsp lsp-deferred)
-    :hook (lsp-mode . efs/lsp-mode-setup)
-    :init
-    (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
-    :config
-    (lsp-enable-which-key-integration t))
+;;  (use-package lsp-ui
+;;    :hook (lsp-mode . lsp-ui-mode)
+;;    :custom
+;;    (lsp-ui-doc-position 'bottom))
 
-(use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'bottom))
+;;  (use-package lsp-treemacs
+;;    :after lsp)
+;;
 
-(use-package lsp-treemacs
-  :after lsp)
-
-(use-package lsp-ivy
-  :after lsp)
+;;  (use-package lsp-ivy
+;;    :after lsp)
 
 (use-package dap-mode
-  ;; Uncomment the config below if you want all UI panes to be hidden by default!
-  ;; :custom
-  ;; (lsp-enable-dap-auto-configure nil)
-  ;; :config
-  ;; (dap-ui-mode 1)
-  :commands dap-debug
-  :config
-  ;; Set up Node debugging
-  (require 'dap-node)
-  (dap-node-setup) ;; Automatically installs Node debug adapter if needed
+    ;; Uncomment the config below if you want all UI panes to be hidden by default!
+    ;; :custom
+    ;; (lsp-enable-dap-auto-configure nil)
+    ;; :config
+    ;; (dap-ui-mode 1)
+    :commands dap-debug
+    :config
+    ;; Set up Node debugging
+    (require 'dap-node)
+    (dap-node-setup) ;; Automatically installs Node debug adapter if needed
 
-  ;; Bind `C-c l d` to `dap-hydra` for easy access
-  (general-define-key
-    :keymaps 'lsp-mode-map
-    :prefix lsp-keymap-prefix
-    "d" '(dap-hydra t :wk "debugger")))
+    ;; Bind `C-c l d` to `dap-hydra` for easy access
+;;    (general-define-key
+;;      :keymaps 'lsp-mode-map
+;;      :prefix lsp-keymap-prefix
+;;      "d" '(dap-hydra t :wk "debugger"))
+   )
 
 (use-package typescript-mode
   :mode "\\.ts\\'"
@@ -652,7 +654,7 @@
 (use-package tuareg
   :ensure nil
   :mode ("\\.mli?\\'" . tuareg-mode)
-  :hook (tuareg-mode . lsp-deferred)
+  ;; :hook (tuareg-mode . lsp-deferred)
   :config
   (require 'ocamldebug)
   )
@@ -662,19 +664,19 @@
   (condition-case nil (imenu-add-to-menubar "Imenu") (error nil)))
  (add-hook 'font-lock-mode-hook 'try-to-add-imenu)
 
-(use-package company
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
-  :bind (:map company-active-map
-         ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map
-         ("<tab>" . company-indent-or-complete-common))
-  :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
-
-(use-package company-box
-  :hook (company-mode . company-box-mode))
+;;  (use-package company
+;;    :after lsp-mode
+;;    :hook (lsp-mode . company-mode)
+;;    :bind (:map company-active-map
+;;           ("<tab>" . company-complete-selection))
+;;          (:map lsp-mode-map
+;;           ("<tab>" . company-indent-or-complete-common))
+;;    :custom
+;;    (company-minimum-prefix-length 1)
+;;    (company-idle-delay 0.0))
+;;
+;;  (use-package company-box
+;;    :hook (company-mode . company-box-mode))
 
 (use-package projectile
   :diminish projectile-mode
